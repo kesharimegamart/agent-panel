@@ -1,460 +1,58 @@
-
 <!doctype html>
-<html lang="hi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucky Lottery - Agent Panel</title>
+<html lang="hi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lucky Lottery - Agent Panel</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f6fb;color:#17263d;font-family:Arial,sans-serif}
-header{background:#142b54;color:white;padding:18px}
-header h2{margin:0}
-main{max-width:1050px;margin:auto;padding:14px}
-.card{background:white;padding:18px;margin:12px 0;border-radius:12px;box-shadow:0 2px 9px #0001}
-.hidden{display:none!important}
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.row>div{flex:1;min-width:140px}
-label{display:block;margin:12px 0 5px;font-weight:bold;font-size:13px}
-input,select{width:100%;padding:12px;border:1px solid #ccd6e3;border-radius:8px;font-size:15px}
-button{border:0;background:#235dc3;color:white;border-radius:8px;padding:12px 16px;font-weight:bold;cursor:pointer;margin:3px}
-button:disabled{opacity:.5}
-.secondary{background:#e7edf8;color:#17417b}
-.tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tabs button{flex:1}
-.active{background:#173e83}
-.notice{padding:12px;background:#fff4db;border-radius:8px;margin:10px 0}
-.success{background:#e2f6e8;color:#126331}
-.error{background:#ffe7e7;color:#a02020}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left}
-th{background:#edf2fb}
-.tablewrap{overflow-x:auto}
-.stats{display:flex;gap:10px;flex-wrap:wrap}
-.stats>div{background:#edf2fb;padding:14px;border-radius:8px;flex:1;min-width:100px}
-.stats strong{display:block;font-size:22px}
-.receipt{max-width:300px;margin:auto;padding:12px;background:white;color:black;font:11px monospace}
-.receipt table{font-size:10px}
-.receipt td,.receipt th{padding:4px 2px}
-.receipt hr{border:0;border-top:1px dashed #555}
-#printArea{display:none}
-@media print{
-body>*:not(#printArea){display:none!important}
-#printArea{display:block!important;position:absolute;top:0;left:0;width:58mm}
-.receipt{width:58mm;max-width:none;padding:2mm}
-@page{size:58mm auto;margin:0}
-}
-</style>
-</head>
-<body>
-<header>
-<h2>LUCKY LOTTERY</h2>
-<small>Free Fun Coin Agent Portal</small>
-<div id="who"></div>
-</header>
-<main>
-<section id="loginView" class="card">
-<h3>Agent / Admin Login</h3>
-<form id="loginForm">
-<label>Agent ID या Admin Email</label>
-<input id="email" required>
-<label>Password</label>
-<input id="password" type="password" required>
-<button id="loginBtn">Login</button>
-</form>
-<div id="loginMessage"></div>
-</section>
-
-<section id="appView" class="hidden">
-<div class="card">
-<strong id="welcome"></strong>
-<span id="roleBadge"></span>
-<button id="logoutBtn" class="secondary" style="float:right">Logout</button>
-</div>
-<div class="tabs">
-<button id="entryTab">नई एंट्री</button>
-<button id="reportTab">Live Report</button>
-<button id="manageTab" class="hidden">Agent Management</button>
-</div>
-
-<div id="entryView">
-<div class="card">
-<h3>Free Fun Coin Entry</h3>
-<form id="entryForm">
-<div class="row">
-<div><label>Date</label><input type="date" id="date" required></div>
-<div><label>Round</label><select id="round"></select></div>
-</div>
-<div class="row">
-<div>
-<label>Game</label>
-<select id="category">
-<option value="last">Last Digit</option>
-<option value="two">2 Digit</option>
-<option value="three">3 Digit</option>
-</select>
-</div>
-<div><label>Number</label><input id="number" inputmode="numeric" maxlength="3"></div>
-<div><label>Fun Coins</label><input id="coins" type="number" min="1" step="1"></div>
-</div>
-<div><label>Customer Name (Optional)</label><input id="customer" maxlength="60"></div>
-<div class="notice">सिर्फ मुफ्त Fun Coins। कोई नकद मूल्य या इनाम नहीं। राउंड शुरू होने से 5 मिनट पहले एंट्री बंद होगी।</div>
-<button type="button" id="addBtn" class="secondary">+ नंबर जोड़ें</button>
-<div id="cart"></div>
-<button id="saveBtn" type="submit">Save All & Print</button>
-<div id="entryMessage"></div>
-</form>
-</div>
-<div class="card hidden" id="receiptCard">
-<h3>एक साथ रसीद</h3>
-<div id="receiptPreview"></div>
-<button id="printBtn">Print Receipt</button>
-</div>
-</div>
-
-<div id="reportView" class="hidden">
-<div class="card">
-<h3>Live Number Wise Report</h3>
-<p id="reportScope"></p>
-<div class="row">
-<div><label>Date</label><input type="date" id="reportDate"></div>
-<div><label>Round</label><select id="reportRound"></select></div>
-<div><label>Game</label>
-<select id="reportCategory">
-<option value="all">All Games</option>
-<option value="last">Last Digit</option>
-<option value="two">2 Digit</option>
-<option value="three">3 Digit</option>
-</select></div>
-</div>
-<div class="stats">
-<div>Entries<strong id="totalEntries">0</strong></div>
-<div>Fun Coins<strong id="totalCoins">0</strong></div>
-<div>Numbers<strong id="totalNumbers">0</strong></div>
-</div>
-<h3>Number Wise</h3>
-<div class="tablewrap"><table>
-<thead><tr><th>Game</th><th>Number</th><th>Entries</th><th>Coins</th><th>Virtual Reward</th></tr></thead>
-<tbody id="numberRows"></tbody>
-</table></div>
-<div id="adminOnly">
-<h3>Agent Wise</h3>
-<div class="tablewrap"><table>
-<thead><tr><th>Agent</th><th>Entries</th><th>Coins</th></tr></thead>
-<tbody id="agentRows"></tbody>
-</table></div>
-</div>
-<h3>Recent Entries</h3>
-<div class="tablewrap"><table>
-<thead><tr><th>Time</th><th>Agent</th><th>Game</th><th>Number</th><th>Coins</th><th>ID</th></tr></thead>
-<tbody id="recentRows"></tbody>
-</table></div>
-</div>
-</div>
-
-<div id="manageView" class="hidden">
-<div class="card">
-<h3>Create Agent</h3>
-<form id="createAgentForm">
-<label>Agent Name</label><input id="newAgentName" required>
-<label>Agent ID</label><input id="newAgentEmail" required>
-<label>Password (12+ characters)</label><input id="newAgentPassword" type="password" minlength="12" required>
-<button id="createAgentBtn">Create Agent</button>
-</form>
-<div id="agentMessage"></div>
-</div>
-<div class="card">
-<h3>Agent Management</h3>
-<button id="refreshAgentsBtn" class="secondary">Refresh</button>
-<div class="tablewrap"><table>
-<thead><tr><th>Name</th><th>Agent ID</th><th>Status</th><th>Action</th></tr></thead>
-<tbody id="manageAgentRows"></tbody>
-</table></div>
-</div>
-</div>
-</section>
-</main>
-<div id="printArea"></div>
-
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#17263d;font-family:Arial,sans-serif}header{background:#142b54;color:white;padding:18px}header h2{margin:0}main{max-width:1050px;margin:auto;padding:14px}.card{background:white;padding:18px;margin:12px 0;border-radius:12px;box-shadow:0 2px 9px #0001}.hidden{display:none!important}.row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:140px}label{display:block;margin:12px 0 5px;font-weight:bold;font-size:13px}input,select{width:100%;padding:12px;border:1px solid #ccd6e3;border-radius:8px;font-size:15px}button{border:0;background:#235dc3;color:white;border-radius:8px;padding:12px 16px;font-weight:bold;cursor:pointer;margin:3px}button:disabled{opacity:.5}.secondary{background:#e7edf8;color:#17417b}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{flex:1;min-width:110px}.active{background:#173e83}.notice{padding:12px;background:#fff4db;border-radius:8px;margin:10px 0}.success{background:#e2f6e8;color:#126331}.error{background:#ffe7e7;color:#a02020}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left}th{background:#edf2fb}.tablewrap{overflow-x:auto}.stats{display:flex;gap:10px;flex-wrap:wrap}.stats>div{background:#edf2fb;padding:14px;border-radius:8px;flex:1;min-width:100px}.stats strong{display:block;font-size:22px}.receipt{max-width:300px;margin:auto;padding:12px;background:white;color:black;font:11px monospace}.receipt table{font-size:10px}.receipt td,.receipt th{padding:4px 2px}.receipt hr{border:0;border-top:1px dashed #555}#printArea{display:none}@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important;position:absolute;top:0;left:0;width:58mm}.receipt{width:58mm;max-width:none;padding:2mm}@page{size:58mm auto;margin:0}}
+</style></head><body><header><h2>LUCKY LOTTERY</h2><small>Free Fun Coin Agent Portal</small><div id="who"></div></header><main>
+<section id="loginView" class="card"><h3>Agent / Admin Login</h3><form id="loginForm"><label>Agent ID या Admin Email</label><input id="email" required autocomplete="username"><label>Password</label><input id="password" type="password" required autocomplete="current-password"><button id="loginBtn">Login</button></form><div id="loginMessage"></div></section>
+<section id="appView" class="hidden"><div class="card"><strong id="welcome"></strong> <span id="roleBadge"></span><button id="logoutBtn" class="secondary" style="float:right">Logout</button></div><div class="tabs"><button id="entryTab">नई एंट्री</button><button id="reportTab">Live Report</button><button id="historyTab">4 दिन History</button><button id="passwordTab">Password</button><button id="manageTab" class="hidden">Agents</button></div>
+<div id="entryView"><div class="card"><h3>Free Fun Coin Entry</h3><form id="entryForm"><div class="row"><div><label>Date</label><input type="date" id="date" required></div><div><label>Round</label><select id="round"></select></div></div><div class="row"><div><label>Game</label><select id="category"><option value="last">Last Digit</option><option value="two">2 Digit</option><option value="three">3 Digit</option></select></div><div><label>Number</label><input id="number" inputmode="numeric" maxlength="3"></div><div><label>Fun Coins</label><input id="coins" type="number" min="1" step="1"></div></div><div><label>Customer Name (Optional)</label><input id="customer" maxlength="60"></div><div class="notice">सिर्फ मुफ्त Fun Coins। कोई नकद मूल्य या इनाम नहीं। राउंड शुरू होने से 5 मिनट पहले एंट्री बंद होगी।</div><button type="button" id="addBtn" class="secondary">+ नंबर जोड़ें</button><div id="cart"></div><button id="saveBtn" type="submit">Save All & Print</button><div id="entryMessage"></div></form></div><div class="card hidden" id="receiptCard"><h3>एक साथ रसीद</h3><div id="receiptPreview"></div><button id="printBtn">Print Receipt</button></div></div>
+<div id="reportView" class="hidden"><div class="card"><h3>Live Number Wise Report</h3><p id="reportScope"></p><div class="row"><div><label>Date</label><input type="date" id="reportDate"></div><div><label>Round</label><select id="reportRound"></select></div><div><label>Game</label><select id="reportCategory"><option value="all">All Games</option><option value="last">Last Digit</option><option value="two">2 Digit</option><option value="three">3 Digit</option></select></div></div><div class="stats"><div>Entries<strong id="totalEntries">0</strong></div><div>Fun Coins<strong id="totalCoins">0</strong></div><div>Numbers<strong id="totalNumbers">0</strong></div></div><h3>Number Wise</h3><div class="tablewrap"><table><thead><tr><th>Game</th><th>Number</th><th>Entries</th><th>Coins</th><th>Virtual Reward</th></tr></thead><tbody id="numberRows"></tbody></table></div><div id="adminOnly"><h3>Agent Wise</h3><div class="tablewrap"><table><thead><tr><th>Agent</th><th>Entries</th><th>Coins</th></tr></thead><tbody id="agentRows"></tbody></table></div></div><h3>Recent Entries</h3><div class="tablewrap"><table><thead><tr><th>Time</th><th>Agent</th><th>Game</th><th>Number</th><th>Coins</th><th>ID</th></tr></thead><tbody id="recentRows"></tbody></table></div></div></div>
+<div id="historyView" class="hidden"><div class="card"><h3>पिछले 4 दिन की History और Reprint</h3><p>आज और पिछले 3 कैलेंडर दिन। Agent अपनी History ही देखेगा।</p><div class="row"><div><label>Date</label><input id="historyDate" type="date"></div><div id="historyAgentBox" class="hidden"><label>Agent</label><select id="historyAgent"><option value="all">सभी Agents</option></select></div></div><button id="historyLoadBtn">History देखें</button><div id="historyMessage"></div><div class="stats"><div>Numbers<strong id="historyCount">0</strong></div><div>Fun Coins<strong id="historyCoins">0</strong></div><div>Receipts<strong id="historyReceipts">0</strong></div></div><div class="tablewrap"><table><thead><tr><th>Receipt ID</th><th>Round</th><th>Agent</th><th>Customer</th><th>Numbers</th><th>Coins</th><th>Action</th></tr></thead><tbody id="historyRows"></tbody></table></div></div><div id="oldReceiptCard" class="card hidden"><h3>पुरानी रसीद</h3><div id="oldReceiptPreview"></div><button id="oldPrintBtn">Reprint</button></div></div>
+<div id="passwordView" class="hidden"><div class="card"><h3>अपना Password बदलें</h3><form id="changePasswordForm"><label>पुराना Password</label><input id="oldPassword" type="password" required autocomplete="current-password"><label>नया Password (कम से कम 12 अक्षर)</label><input id="changedPassword" type="password" minlength="12" required autocomplete="new-password"><label>नया Password दोबारा</label><input id="confirmPassword" type="password" minlength="12" required autocomplete="new-password"><button id="changePasswordBtn">Change Password</button></form><div id="passwordMessage"></div></div></div>
+<div id="manageView" class="hidden"><div class="card"><h3>Create Agent</h3><form id="createAgentForm"><label>Agent Name</label><input id="newAgentName" required><label>Agent ID</label><input id="newAgentEmail" required><label>Password (12+ characters)</label><input id="newAgentPassword" type="password" minlength="12" required><button id="createAgentBtn">Create Agent</button></form><div id="agentMessage"></div></div><div class="card"><h3>Agent Management</h3><div class="notice">Admin दूसरे Agent का Firebase Password यहाँ से सीधे नहीं बदल सकता। इसके लिए सुरक्षित सर्वर-आधारित Reset की व्यवस्था अलग से जोड़नी होगी। फिलहाल Agent स्वयं Password टैब से बदल सकता है।</div><button id="refreshAgentsBtn" class="secondary">Refresh</button><div class="tablewrap"><table><thead><tr><th>Name</th><th>Agent ID</th><th>Status</th><th>Action</th></tr></thead><tbody id="manageAgentRows"></tbody></table></div></div></div>
+</section></main><div id="printArea"></div>
 <script type="module">
 import {initializeApp,deleteApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,inMemoryPersistence,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,inMemoryPersistence,signOut,reauthenticateWithCredential,EmailAuthProvider,updatePassword} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {getFirestore,doc,getDoc,collection,query,where,onSnapshot,runTransaction,serverTimestamp,getDocs,updateDoc} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-
-const firebaseConfig={
-apiKey:"AIzaSyBrhG_hJeFqtXOro0HI7C9OLdjd2T4ahsY",
-authDomain:"lucky-lottery-1d174.firebaseapp.com",
-projectId:"lucky-lottery-1d174",
-storageBucket:"lucky-lottery-1d174.firebasestorage.app",
-messagingSenderId:"124480241873",
-appId:"1:124480241873:web:4b2592767e7186dc3f05f0",
-measurementId:"G-TN1P1PTKJJ"
-};
-
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
-const $=id=>document.getElementById(id);
-const digits={last:1,two:2,three:3};
-const multiplier={last:9,two:90,three:900};
-const names={last:"Last Digit",two:"2 Digit",three:"3 Digit"};
+const firebaseConfig={apiKey:"AIzaSyBrhG_hJeFqtXOro0HI7C9OLdjd2T4ahsY",authDomain:"lucky-lottery-1d174.firebaseapp.com",projectId:"lucky-lottery-1d174",storageBucket:"lucky-lottery-1d174.firebasestorage.app",messagingSenderId:"124480241873",appId:"1:124480241873:web:4b2592767e7186dc3f05f0",measurementId:"G-TN1P1PTKJJ"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);
+const digits={last:1,two:2,three:3},multiplier={last:9,two:90,three:900},names={last:"Last Digit",two:"2 Digit",three:"3 Digit"};
 const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const message=(id,s,type="notice")=>$(id).innerHTML=`<div class="notice ${type}">${escapeHTML(s)}</div>`;
-const today=()=>{let d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
+const dateString=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+const today=()=>dateString(new Date());
+const minHistoryDate=()=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-3);return dateString(d)};
 const human=t=>{let [h,m]=t.split(":").map(Number);return `${h%12||12}:${String(m).padStart(2,"0")} ${h>=12?"PM":"AM"}`};
-const rounds=[];
-for(let m=600;m<=1260;m+=30)rounds.push(`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`);
-for(let id of ["round","reportRound"])$(id).innerHTML=rounds.map(r=>`<option value="${r}">${human(r)}</option>`).join("");
-$("date").value=$("reportDate").value=today();
-$("round").value=rounds.find(r=>new Date(today()+"T"+r+":00").getTime()>Date.now()+300000)||rounds[0];
-$("reportRound").value=$("round").value;
-
-let user=null,profile=null,unsub=null,entries=[],cart=[];
-const agentIdValid=id=>/^[A-Z0-9_-]{3,32}$/.test(id);
-const normalize=s=>String(s||"").trim().toUpperCase();
-const agentEmail=id=>normalize(id).toLowerCase()+"@agents.example.com";
-function loginEmail(s){
-s=s.trim();
-if(s.includes("@"))return s.toLowerCase();
-s=normalize(s);
-if(!agentIdValid(s))throw Error("Agent ID गलत है");
-return agentEmail(s);
-}
-function checkRound(){
-const date=$("date").value,round=$("round").value;
-if(date!==today())throw Error("केवल आज की एंट्री हो सकती है");
-const cutoff=new Date(`${date}T${round}:00`).getTime()-300000;
-if(!Number.isFinite(cutoff)||Date.now()>=cutoff)throw Error("इस राउंड की एंट्री बंद है");
-}
-function tab(name){
-for(let n of ["entry","report","manage"]){
-$(n+"View").classList.toggle("hidden",n!==name);
-$(n+"Tab").classList.toggle("active",n===name);
-}
-if(name==="report")watchReport();
-if(name==="manage")loadAgents();
-}
-$("entryTab").onclick=()=>tab("entry");
-$("reportTab").onclick=()=>tab("report");
-$("manageTab").onclick=()=>tab("manage");
+const rounds=[];for(let m=600;m<=1260;m+=30)rounds.push(`${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`);
+for(const id of ["round","reportRound"])$(id).innerHTML=rounds.map(r=>`<option value="${r}">${human(r)}</option>`).join("");
+$("date").value=$("reportDate").value=$("historyDate").value=today();
+$("round").value=rounds.find(r=>new Date(today()+"T"+r+":00").getTime()>Date.now()+300000)||rounds[0];$("reportRound").value=$("round").value;
+let user=null,profile=null,unsub=null,entries=[],cart=[],historyGroups=new Map();
+const agentIdValid=id=>/^[A-Z0-9_-]{3,32}$/.test(id),normalize=s=>String(s||"").trim().toUpperCase(),agentEmail=id=>normalize(id).toLowerCase()+"@agents.example.com";
+function loginEmail(s){s=s.trim();if(s.includes("@"))return s.toLowerCase();s=normalize(s);if(!agentIdValid(s))throw Error("Agent ID गलत है");return agentEmail(s)}
+function checkRound(){const date=$("date").value,round=$("round").value;if(date!==today())throw Error("केवल आज की एंट्री हो सकती है");const cutoff=new Date(`${date}T${round}:00`).getTime()-300000;if(!Number.isFinite(cutoff)||Date.now()>=cutoff)throw Error("इस राउंड की एंट्री बंद है")}
+function tab(name){if(name!=="report"&&unsub){unsub();unsub=null}for(const n of ["entry","report","history","password","manage"]){$(n+"View").classList.toggle("hidden",n!==name);$(n+"Tab").classList.toggle("active",n===name)}if(name==="report")watchReport();if(name==="manage")loadAgents();if(name==="history")loadHistory()}
+for(const n of ["entry","report","history","password","manage"])$(n+"Tab").onclick=()=>tab(n);
 $("logoutBtn").onclick=()=>signOut(auth);
-
-onAuthStateChanged(auth,async u=>{
-if(unsub){unsub();unsub=null}
-user=null;profile=null;
-$("appView").classList.add("hidden");
-$("loginView").classList.remove("hidden");
-if(!u)return;
-try{
-const snap=await getDoc(doc(db,"agents",u.uid));
-if(!snap.exists()||snap.data().active!==true||!["admin","agent"].includes(snap.data().role))throw Error("Agent/Admin अकाउंट सक्रिय नहीं है");
-user=u;profile=snap.data();
-$("loginView").classList.add("hidden");
-$("appView").classList.remove("hidden");
-$("welcome").textContent=profile.name||u.email;
-$("roleBadge").textContent=profile.role.toUpperCase();
-$("who").textContent=profile.name||"Logged in";
-$("manageTab").classList.toggle("hidden",profile.role!=="admin");
-$("adminOnly").classList.toggle("hidden",profile.role!=="admin");
-$("reportScope").textContent=profile.role==="admin"?"सभी Agents की रिपोर्ट":"आपकी अपनी रिपोर्ट";
-cart=[];renderCart();tab("entry");
-}catch(e){message("loginMessage",e.message,"error");await signOut(auth)}
-});
-$("loginForm").onsubmit=async e=>{
-e.preventDefault();$("loginBtn").disabled=true;
-try{await signInWithEmailAndPassword(auth,loginEmail($("email").value),$("password").value)}
-catch(err){message("loginMessage",err.message,"error")}
-finally{$("loginBtn").disabled=false}
-};
-
-function readItem(){
-const category=$("category").value;
-const number=$("number").value.trim();
-const coins=Number($("coins").value);
-if(!new RegExp("^\\d{"+digits[category]+"}$").test(number))throw Error("इस गेम के नंबर सही भरें");
-if(!Number.isSafeInteger(coins)||coins<1||coins>1000000)throw Error("Fun Coins 1 से 1000000 तक रखें");
-return {category,number,coins};
-}
-function renderCart(){
-const total=cart.reduce((s,x)=>s+x.coins,0);
-$("cart").innerHTML=cart.length?`
-<h4>जोड़े गए नंबर (${cart.length})</h4>
-<div class="tablewrap"><table>
-<tr><th>Game</th><th>Number</th><th>Coins</th><th></th></tr>
-${cart.map((x,i)=>`<tr><td>${names[x.category]}</td><td>${escapeHTML(x.number)}</td><td>${x.coins}</td><td><button type="button" class="secondary" data-remove="${i}">X</button></td></tr>`).join("")}
-</table></div>
-<p><b>Total Fun Coins: ${total}</b></p>`:"";
-$("cart").querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{
-cart.splice(Number(b.dataset.remove),1);renderCart();
-});
-}
-$("addBtn").onclick=()=>{
-try{
-checkRound();
-if(cart.length>=50)throw Error("एक रसीद में अधिकतम 50 नंबर");
-cart.push(readItem());
-renderCart();
-$("number").value="";$("coins").value="";
-message("entryMessage","नंबर जोड़ दिया गया","success");
-}catch(e){message("entryMessage",e.message,"error")}
-};
-$("category").onchange=()=>{
-$("number").value="";
-$("number").placeholder="0".repeat(digits[$("category").value]);
-};
-for(let id of ["date","round","customer"]){
-$(id).addEventListener("change",()=>{
-if(cart.length){cart=[];renderCart();message("entryMessage","पुरानी नंबर सूची साफ हो गई")}
-});
-}
-
-function receiptHTML(r){
-const total=r.items.reduce((s,x)=>s+x.coins,0);
-return `<div class="receipt">
-<div style="text-align:center"><b>LUCKY LOTTERY</b><p>FREE FUN COIN RECEIPT</p><small>NO CASH VALUE</small></div>
-<hr>
-<p>Receipt: ${escapeHTML(r.id)}</p>
-<p>Date: ${escapeHTML(r.date)}</p>
-<p>Round: ${escapeHTML(human(r.round))}</p>
-<p>Agent: ${escapeHTML(r.agent)}</p>
-<p>Customer: ${escapeHTML(r.customer||"-")}</p>
-<hr>
-<table><tr><th>Game</th><th>No.</th><th>Coins</th></tr>
-${r.items.map(x=>`<tr><td>${names[x.category]}</td><td>${escapeHTML(x.number)}</td><td>${x.coins}</td></tr>`).join("")}
-</table><hr>
-<p>Total Numbers: <b>${r.items.length}</b></p>
-<p>Total Fun Coins: <b>${total}</b></p>
-<hr><div style="text-align:center">Entertainment Only<br>No Cash / No Prizes</div>
-</div>`;
-}
-$("entryForm").onsubmit=async e=>{
-e.preventDefault();
-if(!user)return;
-const btn=$("saveBtn");
-try{
-checkRound();
-const items=[...cart];
-if($("number").value.trim()||$("coins").value.trim())items.push(readItem());
-if(!items.length||items.length>50)throw Error("1 से 50 नंबर जोड़ें");
-const date=$("date").value,round=$("round").value,customer=$("customer").value.trim();
-const receiptId=doc(collection(db,"entries")).id;
-const agentName=profile.name||user.email;
-btn.disabled=true;$("addBtn").disabled=true;
-await runTransaction(db,async tx=>{
-const p=await tx.get(doc(db,"agents",user.uid));
-if(!p.exists()||p.data().active!==true)throw Error("Agent inactive");
-checkRound();
-items.forEach((item,i)=>{
-const id=receiptId+"_"+String(i+1).padStart(3,"0");
-tx.set(doc(db,"entries",id),{
-id,date,round,category:item.category,number:item.number,
-coins:item.coins,customer,agentUid:user.uid,
-agentName,createdAt:serverTimestamp()
-});
-});
-});
-const html=receiptHTML({id:receiptId,date,round,customer,agent:agentName,items});
-$("receiptPreview").innerHTML=html;
-$("printArea").innerHTML=html;
-$("receiptCard").classList.remove("hidden");
-cart=[];renderCart();
-$("number").value="";$("coins").value="";$("customer").value="";
-message("entryMessage",items.length+" नंबर सेव हो गए। रसीद प्रिंट करें।","success");
-}catch(err){message("entryMessage","सेव नहीं हुआ: "+err.message,"error")}
-finally{btn.disabled=false;$("addBtn").disabled=false}
-};
-$("printBtn").onclick=()=>window.print();
-
-function watchReport(){
-if(!user)return;
-if(unsub)unsub();
-const date=$("reportDate").value,round=$("reportRound").value;
-const q=profile.role==="admin"
-?query(collection(db,"entries"),where("date","==",date),where("round","==",round))
-:query(collection(db,"entries"),where("agentUid","==",user.uid),where("date","==",date),where("round","==",round));
-unsub=onSnapshot(q,s=>{
-entries=s.docs.map(d=>({...d.data(),id:d.id}));
-renderReport();
-},err=>message("reportScope",err.message,"error"));
-}
-$("reportDate").onchange=watchReport;
-$("reportRound").onchange=watchReport;
-$("reportCategory").onchange=renderReport;
-function renderReport(){
-const cat=$("reportCategory").value;
-const list=entries.filter(e=>cat==="all"||e.category===cat);
-const numbers=new Map(),agents=new Map();
-for(let e of list){
-const k=e.category+":"+e.number;
-const n=numbers.get(k)||{category:e.category,number:e.number,count:0,coins:0};
-n.count++;n.coins+=e.coins;numbers.set(k,n);
-const a=agents.get(e.agentUid)||{name:e.agentName,count:0,coins:0};
-a.count++;a.coins+=e.coins;agents.set(e.agentUid,a);
-}
-$("totalEntries").textContent=list.length;
-$("totalCoins").textContent=list.reduce((s,e)=>s+e.coins,0);
-$("totalNumbers").textContent=numbers.size;
-$("numberRows").innerHTML=[...numbers.values()].sort((a,b)=>b.coins-a.coins).map(x=>`<tr><td>${names[x.category]}</td><td>${escapeHTML(x.number)}</td><td>${x.count}</td><td>${x.coins}</td><td>${x.coins*multiplier[x.category]}</td></tr>`).join("")||"<tr><td colspan='5'>कोई एंट्री नहीं</td></tr>";
-$("agentRows").innerHTML=[...agents.values()].map(a=>`<tr><td>${escapeHTML(a.name)}</td><td>${a.count}</td><td>${a.coins}</td></tr>`).join("");
-$("recentRows").innerHTML=list.slice().sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,50).map(e=>`<tr><td>${escapeHTML(e.createdAt?.toDate?.().toLocaleTimeString("en-IN")||"-")}</td><td>${escapeHTML(e.agentName)}</td><td>${names[e.category]}</td><td>${escapeHTML(e.number)}</td><td>${e.coins}</td><td>${escapeHTML(e.id.slice(0,8))}</td></tr>`).join("");
-}
-
-async function loadAgents(){
-if(profile?.role!=="admin")return;
-const body=$("manageAgentRows");
-body.innerHTML="<tr><td>Loading...</td></tr>";
-try{
-const snap=await getDocs(collection(db,"agents"));
-const list=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(a=>a.role==="agent");
-body.innerHTML=list.map(a=>`<tr><td>${escapeHTML(a.name)}</td><td>${escapeHTML(a.agentId||"-")}</td><td>${a.active?"Active":"Inactive"}</td><td><button class="secondary" data-uid="${escapeHTML(a.uid)}" data-active="${a.active}">${a.active?"Deactivate":"Activate"}</button></td></tr>`).join("")||"<tr><td>कोई Agent नहीं</td></tr>";
-body.querySelectorAll("[data-uid]").forEach(b=>b.onclick=async()=>{
-if(!confirm("Agent की स्थिति बदलें?"))return;
-b.disabled=true;
-try{await updateDoc(doc(db,"agents",b.dataset.uid),{active:b.dataset.active!=="true"});await loadAgents()}
-catch(e){message("agentMessage",e.message,"error");b.disabled=false}
-});
-}catch(e){message("agentMessage",e.message,"error")}
-}
+onAuthStateChanged(auth,async u=>{if(unsub){unsub();unsub=null}user=null;profile=null;$("appView").classList.add("hidden");$("loginView").classList.remove("hidden");$("who").textContent="";if(!u)return;try{const snap=await getDoc(doc(db,"agents",u.uid));if(!snap.exists()||snap.data().active!==true||!["admin","agent"].includes(snap.data().role))throw Error("Agent/Admin अकाउंट सक्रिय नहीं है");user=u;profile=snap.data();$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");$("welcome").textContent=profile.name||u.email;$("roleBadge").textContent=profile.role.toUpperCase();$("who").textContent=profile.name||"Logged in";$("manageTab").classList.toggle("hidden",profile.role!=="admin");$("adminOnly").classList.toggle("hidden",profile.role!=="admin");$("historyAgentBox").classList.toggle("hidden",profile.role!=="admin");$("reportScope").textContent=profile.role==="admin"?"सभी Agents की रिपोर्ट":"आपकी अपनी रिपोर्ट";cart=[];renderCart();tab("entry")}catch(e){message("loginMessage",e.message,"error");await signOut(auth)}});
+$("loginForm").onsubmit=async e=>{e.preventDefault();$("loginBtn").disabled=true;try{await signInWithEmailAndPassword(auth,loginEmail($("email").value),$("password").value)}catch(err){message("loginMessage",err.message,"error")}finally{$("loginBtn").disabled=false}};
+function readItem(){const category=$("category").value,number=$("number").value.trim(),coins=Number($("coins").value);if(!new RegExp("^\\d{"+digits[category]+"}$").test(number))throw Error("इस गेम के नंबर सही भरें");if(!Number.isSafeInteger(coins)||coins<1||coins>1000000)throw Error("Fun Coins 1 से 1000000 तक रखें");return{category,number,coins}}
+function renderCart(){const total=cart.reduce((s,x)=>s+x.coins,0);$("cart").innerHTML=cart.length?`<h4>जोड़े गए नंबर (${cart.length})</h4><div class="tablewrap"><table><tr><th>Game</th><th>Number</th><th>Coins</th><th></th></tr>${cart.map((x,i)=>`<tr><td>${names[x.category]}</td><td>${escapeHTML(x.number)}</td><td>${x.coins}</td><td><button type="button" class="secondary" data-remove="${i}">X</button></td></tr>`).join("")}</table></div><p><b>Total Fun Coins: ${total}</b></p>`:"";$("cart").querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{cart.splice(Number(b.dataset.remove),1);renderCart()})}
+$("addBtn").onclick=()=>{try{checkRound();if(cart.length>=50)throw Error("एक रसीद में अधिकतम 50 नंबर");cart.push(readItem());renderCart();$("number").value="";$("coins").value="";message("entryMessage","नंबर जोड़ दिया गया","success")}catch(e){message("entryMessage",e.message,"error")}};
+$("category").onchange=()=>{$("number").value="";$("number").placeholder="0".repeat(digits[$("category").value])};
+for(const id of ["date","round","customer"])$(id).addEventListener("change",()=>{if(cart.length){cart=[];renderCart();message("entryMessage","पुरानी नंबर सूची साफ हो गई")}});
+function receiptHTML(r){const total=r.items.reduce((s,x)=>s+x.coins,0);return `<div class="receipt"><div style="text-align:center"><b>LUCKY LOTTERY</b><p>FREE FUN COIN RECEIPT</p><small>NO CASH VALUE</small></div><hr><p>Receipt: ${escapeHTML(r.id)}</p><p>Date: ${escapeHTML(r.date)}</p><p>Round: ${escapeHTML(human(r.round))}</p><p>Agent: ${escapeHTML(r.agent)}</p><p>Customer: ${escapeHTML(r.customer||"-")}</p><hr><table><tr><th>Game</th><th>No.</th><th>Coins</th></tr>${r.items.map(x=>`<tr><td>${names[x.category]||"-"}</td><td>${escapeHTML(x.number)}</td><td>${x.coins}</td></tr>`).join("")}</table><hr><p>Total Numbers: <b>${r.items.length}</b></p><p>Total Fun Coins: <b>${total}</b></p><hr><div style="text-align:center">Entertainment Only<br>No Cash / No Prizes</div></div>`}
+$("entryForm").onsubmit=async e=>{e.preventDefault();if(!user)return;const btn=$("saveBtn");try{checkRound();const items=[...cart];if($("number").value.trim()||$("coins").value.trim())items.push(readItem());if(!items.length||items.length>50)throw Error("1 से 50 नंबर जोड़ें");const date=$("date").value,round=$("round").value,customer=$("customer").value.trim(),receiptId=doc(collection(db,"entries")).id,agentName=profile.name||user.email;btn.disabled=true;$("addBtn").disabled=true;await runTransaction(db,async tx=>{const p=await tx.get(doc(db,"agents",user.uid));if(!p.exists()||p.data().active!==true)throw Error("Agent inactive");checkRound();items.forEach((item,i)=>{const id=receiptId+"_"+String(i+1).padStart(3,"0");tx.set(doc(db,"entries",id),{id,date,round,category:item.category,number:item.number,coins:item.coins,customer,agentUid:user.uid,agentName,createdAt:serverTimestamp()})})});const html=receiptHTML({id:receiptId,date,round,customer,agent:agentName,items});$("receiptPreview").innerHTML=html;$("printArea").innerHTML=html;$("receiptCard").classList.remove("hidden");cart=[];renderCart();$("number").value="";$("coins").value="";$("customer").value="";message("entryMessage",items.length+" नंबर सेव हो गए। रसीद प्रिंट करें।","success")}catch(err){message("entryMessage","सेव नहीं हुआ: "+err.message,"error")}finally{btn.disabled=false;$("addBtn").disabled=false}};
+$("printBtn").onclick=()=>window.print();$("oldPrintBtn").onclick=()=>window.print();
+function watchReport(){if(!user)return;if(unsub)unsub();const date=$("reportDate").value,round=$("reportRound").value,q=profile.role==="admin"?query(collection(db,"entries"),where("date","==",date),where("round","==",round)):query(collection(db,"entries"),where("agentUid","==",user.uid),where("date","==",date),where("round","==",round));unsub=onSnapshot(q,s=>{entries=s.docs.map(d=>({...d.data(),id:d.id}));renderReport()},err=>message("reportScope",err.message,"error"))}
+$("reportDate").onchange=watchReport;$("reportRound").onchange=watchReport;$("reportCategory").onchange=renderReport;
+function renderReport(){const cat=$("reportCategory").value,list=entries.filter(e=>cat==="all"||e.category===cat),numbers=new Map(),agents=new Map();for(const e of list){const k=e.category+":"+e.number,n=numbers.get(k)||{category:e.category,number:e.number,count:0,coins:0};n.count++;n.coins+=e.coins;numbers.set(k,n);const a=agents.get(e.agentUid)||{name:e.agentName,count:0,coins:0};a.count++;a.coins+=e.coins;agents.set(e.agentUid,a)}$("totalEntries").textContent=list.length;$("totalCoins").textContent=list.reduce((s,e)=>s+e.coins,0);$("totalNumbers").textContent=numbers.size;$("numberRows").innerHTML=[...numbers.values()].sort((a,b)=>b.coins-a.coins).map(x=>`<tr><td>${names[x.category]}</td><td>${escapeHTML(x.number)}</td><td>${x.count}</td><td>${x.coins}</td><td>${x.coins*multiplier[x.category]}</td></tr>`).join("")||"<tr><td colspan='5'>कोई एंट्री नहीं</td></tr>";$("agentRows").innerHTML=[...agents.values()].map(a=>`<tr><td>${escapeHTML(a.name)}</td><td>${a.count}</td><td>${a.coins}</td></tr>`).join("");$("recentRows").innerHTML=list.slice().sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,50).map(e=>`<tr><td>${escapeHTML(e.createdAt?.toDate?.().toLocaleTimeString("en-IN")||"-")}</td><td>${escapeHTML(e.agentName)}</td><td>${names[e.category]}</td><td>${escapeHTML(e.number)}</td><td>${e.coins}</td><td>${escapeHTML(e.id.slice(0,8))}</td></tr>`).join("")}
+function receiptKey(e){return typeof e.receiptId==="string"?e.receiptId:String(e.id).replace(/_\d{3}$/,'')}
+async function loadHistory(){if(!user)return;const btn=$("historyLoadBtn"),date=$("historyDate").value;if(date<minHistoryDate()||date>today())return message("historyMessage","आज सहित पिछले 4 दिन की तारीख चुनें","error");btn.disabled=true;$("historyRows").innerHTML="<tr><td colspan='7'>Loading...</td></tr>";$("oldReceiptCard").classList.add("hidden");try{const q=profile.role==="admin"?query(collection(db,"entries"),where("date","==",date)):query(collection(db,"entries"),where("agentUid","==",user.uid),where("date","==",date));const snap=await getDocs(q),all=snap.docs.map(d=>({...d.data(),id:d.id}));if(profile.role==="admin"){const ids=new Map(all.map(x=>[x.agentUid,x.agentName]));const current=$("historyAgent").value;$("historyAgent").innerHTML='<option value="all">सभी Agents</option>'+[...ids].map(([uid,name])=>`<option value="${escapeHTML(uid)}">${escapeHTML(name||uid)}</option>`).join("");$("historyAgent").value=ids.has(current)?current:"all"}const chosen=$("historyAgent").value,list=profile.role==="admin"&&chosen!=="all"?all.filter(e=>e.agentUid===chosen):all;historyGroups=new Map();for(const e of list){const k=receiptKey(e);if(!historyGroups.has(k))historyGroups.set(k,[]);historyGroups.get(k).push(e)}$("historyCount").textContent=list.length;$("historyCoins").textContent=list.reduce((n,e)=>n+Number(e.coins||0),0);$("historyReceipts").textContent=historyGroups.size;$("historyRows").innerHTML=[...historyGroups].sort((a,b)=>(b[1][0].createdAt?.seconds||0)-(a[1][0].createdAt?.seconds||0)).map(([id,items])=>{const e=items[0];return `<tr><td>${escapeHTML(id.slice(0,10))}</td><td>${escapeHTML(human(e.round))}</td><td>${escapeHTML(e.agentName)}</td><td>${escapeHTML(e.customer||'-')}</td><td>${items.length}</td><td>${items.reduce((n,x)=>n+Number(x.coins||0),0)}</td><td><button class="secondary" data-receipt="${escapeHTML(id)}">Reprint</button></td></tr>`}).join("")||"<tr><td colspan='7'>कोई रसीद नहीं</td></tr>";$("historyRows").querySelectorAll("[data-receipt]").forEach(b=>b.onclick=()=>{const items=historyGroups.get(b.dataset.receipt);if(!items)return;const e=items[0],html=receiptHTML({id:b.dataset.receipt,date:e.date,round:e.round,agent:e.agentName,customer:e.customer,items:items.slice().sort((a,b)=>a.id.localeCompare(b.id)).map(x=>({category:x.category,number:x.number,coins:x.coins}))});$("oldReceiptPreview").innerHTML=html;$("printArea").innerHTML=html;$("oldReceiptCard").classList.remove("hidden");$("oldReceiptCard").scrollIntoView({behavior:"smooth"})});message("historyMessage",`${historyGroups.size} रसीद मिलीं`,"success")}catch(err){message("historyMessage","History नहीं खुली: "+err.message,"error");$("historyRows").innerHTML=""}finally{btn.disabled=false}}
+$("historyLoadBtn").onclick=loadHistory;$("historyDate").min=minHistoryDate();$("historyDate").max=today();$("historyAgent").onchange=loadHistory;
+$("changePasswordForm").onsubmit=async e=>{e.preventDefault();if(!user)return;const old=$("oldPassword").value,next=$("changedPassword").value,confirmNext=$("confirmPassword").value,btn=$("changePasswordBtn");if(next.length<12)return message("passwordMessage","नया Password कम से कम 12 अक्षर का हो","error");if(next!==confirmNext)return message("passwordMessage","दोनों नए Password अलग हैं","error");if(next===old)return message("passwordMessage","नया Password पुराने से अलग रखें","error");btn.disabled=true;try{const credential=EmailAuthProvider.credential(user.email,old);await reauthenticateWithCredential(user,credential);await updatePassword(user,next);$("changePasswordForm").reset();message("passwordMessage","Password बदल गया। अगली बार नया Password इस्तेमाल करें।","success")}catch(err){message("passwordMessage","Password नहीं बदला: "+err.message,"error")}finally{btn.disabled=false}};
+async function loadAgents(){if(profile?.role!=="admin")return;const body=$("manageAgentRows");body.innerHTML="<tr><td>Loading...</td></tr>";try{const snap=await getDocs(collection(db,"agents")),list=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(a=>a.role==="agent");body.innerHTML=list.map(a=>`<tr><td>${escapeHTML(a.name)}</td><td>${escapeHTML(a.agentId||"-")}</td><td>${a.active?"Active":"Inactive"}</td><td><button class="secondary" data-uid="${escapeHTML(a.uid)}" data-active="${a.active}">${a.active?"Deactivate":"Activate"}</button></td></tr>`).join("")||"<tr><td>कोई Agent नहीं</td></tr>";body.querySelectorAll("[data-uid]").forEach(b=>b.onclick=async()=>{if(!confirm("Agent की स्थिति बदलें?"))return;b.disabled=true;try{await updateDoc(doc(db,"agents",b.dataset.uid),{active:b.dataset.active!=="true"});await loadAgents()}catch(e){message("agentMessage",e.message,"error");b.disabled=false}})}catch(e){message("agentMessage",e.message,"error")}}
 $("refreshAgentsBtn").onclick=loadAgents;
-$("createAgentForm").onsubmit=async e=>{
-e.preventDefault();
-if(profile?.role!=="admin")return;
-const btn=$("createAgentBtn");
-const name=$("newAgentName").value.trim();
-const id=normalize($("newAgentEmail").value);
-const password=$("newAgentPassword").value;
-if(!agentIdValid(id))return message("agentMessage","Agent ID में 3–32 अक्षर, अंक, _ या - रखें","error");
-if(password.length<12)return message("agentMessage","Password कम से कम 12 अक्षर का रखें","error");
-btn.disabled=true;
-let secondaryApp=null,secondaryAuth=null,created=null;
-try{
-const idRef=doc(db,"agentIds",id);
-if((await getDoc(idRef)).exists())throw Error("Agent ID पहले से मौजूद है");
-secondaryApp=initializeApp(firebaseConfig,"agent-creation-"+Date.now());
-secondaryAuth=getAuth(secondaryApp);
-await setPersistence(secondaryAuth,inMemoryPersistence);
-const cred=await createUserWithEmailAndPassword(secondaryAuth,agentEmail(id),password);
-created=cred.user;
-await runTransaction(db,async tx=>{
-const old=await tx.get(idRef);
-if(old.exists())throw Error("Agent ID पहले से मौजूद है");
-tx.set(doc(db,"agents",created.uid),{
-name,agentId:id,email:agentEmail(id),role:"agent",active:true,
-createdAt:serverTimestamp(),createdBy:user.uid
-});
-tx.set(idRef,{uid:created.uid,createdAt:serverTimestamp()});
-});
-$("createAgentForm").reset();
-message("agentMessage","Agent बन गया: "+id,"success");
-await loadAgents();
-}catch(err){
-message("agentMessage",err.message+(created?" Auth user बन चुका हो सकता है; Firebase Users जाँचें।":""),"error");
-}finally{
-if(secondaryAuth)await signOut(secondaryAuth).catch(()=>{});
-if(secondaryApp)await deleteApp(secondaryApp).catch(()=>{});
-btn.disabled=false;
-}
-};
-</script>
-</body>
-</html>
+$("createAgentForm").onsubmit=async e=>{e.preventDefault();if(profile?.role!=="admin")return;const btn=$("createAgentBtn"),name=$("newAgentName").value.trim(),id=normalize($("newAgentEmail").value),password=$("newAgentPassword").value;if(!agentIdValid(id))return message("agentMessage","Agent ID में 3–32 अक्षर, अंक, _ या - रखें","error");if(password.length<12)return message("agentMessage","Password कम से कम 12 अक्षर का रखें","error");btn.disabled=true;let secondaryApp=null,secondaryAuth=null,created=null;try{const idRef=doc(db,"agentIds",id);if((await getDoc(idRef)).exists())throw Error("Agent ID पहले से मौजूद है");secondaryApp=initializeApp(firebaseConfig,"agent-creation-"+Date.now());secondaryAuth=getAuth(secondaryApp);await setPersistence(secondaryAuth,inMemoryPersistence);const cred=await createUserWithEmailAndPassword(secondaryAuth,agentEmail(id),password);created=cred.user;await runTransaction(db,async tx=>{const old=await tx.get(idRef);if(old.exists())throw Error("Agent ID पहले से मौजूद है");tx.set(doc(db,"agents",created.uid),{name,agentId:id,email:agentEmail(id),role:"agent",active:true,createdAt:serverTimestamp(),createdBy:user.uid});tx.set(idRef,{uid:created.uid,createdAt:serverTimestamp()})});$("createAgentForm").reset();message("agentMessage","Agent बन गया: "+id,"success");await loadAgents()}catch(err){message("agentMessage",err.message+(created?" Auth user बन चुका हो सकता है; Firebase Users जाँचें।":""),"error")}finally{if(secondaryAuth)await signOut(secondaryAuth).catch(()=>{});if(secondaryApp)await deleteApp(secondaryApp).catch(()=>{});btn.disabled=false}};
+</script></body></html>
