@@ -6,7 +6,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {getFirestore,doc,getDoc,collection,query,where,onSnapshot,runTransaction,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 // Replace with Firebase web app configuration from Project Settings (public config only).
-const firebaseConfig={apiKey:'PASTE_API_KEY',authDomain:'PASTE_PROJECT.firebaseapp.com',projectId:'PASTE_PROJECT_ID',appId:'PASTE_APP_ID'};
+const firebaseConfig={apiKey:'AIzaSyBrhG_hJeFqtXOro0HI7C9OLdjd2T4ahsY',authDomain:'lucky-lottery-1d174.firebaseapp.com',projectId:'lucky-lottery-1d174',storageBucket:'lucky-lottery-1d174.firebasestorage.app',messagingSenderId:'124480241873',appId:'1:124480241873:web:4b2592767e7186dc3f05f0',measurementId:'G-TN1P1PTKJJ'};
 const $=id=>document.getElementById(id), configured=!firebaseConfig.apiKey.startsWith('PASTE_');
 let auth,db,currentUser=null,profile=null,unsubscribe=null,liveEntries=[];
 const multiplier={last:9,two:90,three:900},digits={last:1,two:2,three:3},categoryName={last:'Last Digit',two:'2 Digit',three:'3 Digit'};
